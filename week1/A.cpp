@@ -1,12 +1,11 @@
 /*
 Problem: A+B (Trial Problem)
 Source: Codeforces (https://codeforces.com/problemset/problem/1351/A)
-Constraints:
-    - 1 <= t <= 10^4
-    - -1000 <= a, b <= 1000
+
 Approach:
-    - For each test case, read two integers a and b.
-    - Compute their sum and print the result.
+  - For each test case, read two integers a and b.
+  - Compute their sum and print the result.
+
 Time Complexity: O(1) per test case
 Space Complexity: O(1)
 */

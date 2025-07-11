@@ -1,4 +1,9 @@
-
+/* This code implements a divide and conquer algorithm to find the maximum subarray sum in an array.
+ * The function `dec` recursively divides the array into two halves, calculates the maximum subarray sum for each half,
+ * and combines the results by finding the maximum sum that crosses the midpoint.
+ * The complexity of this algorithm is O(n log n) due to the recursive nature of the divide and conquer approach.
+ * The space complexity is O(n) for storing the array and auxiliary variables.
+*/
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;

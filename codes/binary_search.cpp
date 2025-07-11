@@ -1,3 +1,9 @@
+/* This code implements a solution to a problem involving counting pairs of indices in an array based on certain conditions.
+ * The algorithm uses binary search to efficiently find the required indices and calculates the result based on the conditions given.
+ * The complexity of the algorithm is O(m log m) where m is the number of elements in the array.
+ * The space complexity is O(n) for storing the prefix sums.
+ */
+
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;

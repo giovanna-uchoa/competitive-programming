@@ -1,19 +1,18 @@
 /*
 Problem: F - Move Back at a Cost
 Source: Vjudge (https://vjudge.net/contest/700636#problem/F)
-Constraints:
-    - 1 ≤ t ≤ 10^4
-    - 1 ≤ n ≤ 10^5
-    - 1 ≤ ai ≤ 10^9
+
 Approach:
-    - Identify elements that are out of order and store them in a multiset for later adjustments.
-    - Maintain a "front" vector to store values that should initially remain unmodified.
-    - Merge both structures to construct the final sequence. To do this, check if any values in the "front"
+  - Identify elements that are out of order and store them in a multiset for later adjustments.
+  - Maintain a "front" vector to store values that should initially remain unmodified.
+  - Merge both structures to construct the final sequence. To do this, check if any values in the "front"
       are greater than those in the pushed-back set. If so, they are out of order and need to be pushed back.
-Time Complexity: O(n log n) per test case
+
 Error Encountered: The code originally attempted to access the smallest element of `lex_smallest_arr` without checking if it was empty.
-    - If `lex_smallest_arr` was empty, dereferencing `lex_smallest_arr.begin()` resulted in **undefined behavior (segfault).**
-    - Fix: Added a check to handle empty cases
+ - If `lex_smallest_arr` was empty, dereferencing `lex_smallest_arr.begin()` resulted in **undefined behavior (segfault).**
+ - Fix: Added a check to handle empty cases
+
+Time Complexity: O(n log n) per test case
 Space Complexity: O(n)
 */
 

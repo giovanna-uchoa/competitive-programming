@@ -1,3 +1,7 @@
-.vscode/
+.vscode
+.DS_Store
+*/.vscode
+*/.DS_Store
 book.pdf
 codes/codes.pdf
+

@@ -1,17 +1,15 @@
 /*
 Problem: B - Normal Problem
 Source: Vjudge (https://vjudge.net/contest/700636#problem/B)
-Constraints:
-    - 1 ≤ t ≤ 100
-    - 0 ≤ |a| ≤ 100
+
 Approach:
-    - Iterate over the input string and construct a mirrored version:
-      - 'p' becomes 'q', 'q' becomes 'p', and other characters remain the same.
-      - The mirrored character is prepended to the result string.
+  - Iterate over the input string and construct a mirrored version:
+    - 'p' becomes 'q', 'q' becomes 'p', and other characters remain the same.
+    - The mirrored character is prepended to the result string.
+
 Time Complexity: O(|a|)
 Space Complexity: O(|a|)
 */
-
 
 #include <bits/stdc++.h>
 using namespace std;

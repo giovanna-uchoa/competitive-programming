@@ -1,14 +1,12 @@
 /*
 Problem: C - Balloon Quantum Popping
 Source: Vjudge (https://vjudge.net/contest/700636#problem/C)
-Constraints:
-    - 1 ≤ N ≤ 10^5
-    - 0 ≤ S ≤ 10^9
-    - 0 ≤ bi ≤ 10^9 (initial balloon inflation)
+
 Approach:
-    - Sort the balloon sizes in **descending order**.
-    - At each second, Mori looks at the most inflated balloon and deflates it by half.
-    - The process repeats until total inflated volume ≤ S.
+  - Sort the balloon sizes in **descending order**.
+  - At each second, Mori looks at the most inflated balloon and deflates it by half.
+  - The process repeats until total inflated volume ≤ S.
+
 Time Complexity: O(N log N)
 Space Complexity: O(N)
 */

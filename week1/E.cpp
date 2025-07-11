@@ -1,14 +1,14 @@
 /*
 Problem: Remove Duplicates
 Source: Codeforces (https://codeforces.com/problemset/problem/978/A)
-Constraints:
-    - 1 ≤ n ≤ 50
-    - 1 ≤ ai ≤ 1000
+
 Approach:
-    - Iterate through the array from right to left, maintaining a `set<int>` to track unique elements.
-    - If an element hasn't been seen before, add it to the result vector and mark it as seen.
-    - Finally, print the count of unique elements and their values in reverse order.
-Time Complexity: O(n lg n) — Each element is processed once, and set operations (insert & find) are O(lg n
+  - Iterate through the array from right to left, maintaining a `set<int>` to track unique elements.
+  - If an element hasn't been seen before, add it to the result vector and mark it as seen.
+  - Finally, print the count of unique elements and their values in reverse order.
+
+Time Complexity: O(n lg n) 
+  — Each element is processed once, and set operations (insert & find) are O(lg n
 Space Complexity: O(n)
 */
 

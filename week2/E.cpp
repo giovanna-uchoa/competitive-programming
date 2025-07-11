@@ -1,13 +1,12 @@
 /*
 Problem: E - Digital string maximization
 Source: Vjudge (https://vjudge.net/contest/700636#problem/E)
-Constraints:
-    - 1 ≤ t ≤ 10^4
-    - 1 ≤ |s| ≤ 2.10^5
+
 Approach:
     - The goal is to maximize the lexicographical order of `s` by rearranging digits dynamically.
     - We maintain a window of at most 9 elements and replace each character optimally.
     - For each position `i`, we choose the best possible character from the window while keeping the order valid.
+
 Time Complexity: O(|s|) per test case
 Space Complexity: O(|s|)
 */

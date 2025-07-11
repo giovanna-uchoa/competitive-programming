@@ -1,11 +1,13 @@
 /*
 Problem: Maximum Subset Sum
 Source: SPOJ (https://www.spoj.com/problems/MAXSUMSU/en/)
-Constraints: All input fits in the integer size.
+
 Approach:
-    - Use Kadane's algorithm to find the maximum subarray sum in O(n) time:
-        - Iterate through the array while keeping track of the maximum sum encountered so far.
+  - Use Kadane's algorithm to find the maximum subarray sum in O(n) time:
+    - Iterate through the array while keeping track of the maximum sum encountered so far.
+
 Time Complexity: O(n) per test case
+Space Complexity: O(1)
 */
 
 #include <bits/stdc++.h>

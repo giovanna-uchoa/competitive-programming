@@ -1,12 +1,12 @@
 /*
 Problem: Doors and Keys
 Source: Codeforces (https://codeforces.com/problemset/problem/1644/A)
-Constraints:
-    - 1 <= t <= 720
+
 Approach:
-    - Track if the lowercase letters ('r', 'b', 'g') (keys) have been encountered with booleans.
-    - If an uppercase letter ('R', 'B', 'G') (door) is found before its corresponding boolean (key) is true, stop processing.
-    - If all keys are found print "YES". Otherwise, print "NO".
+  - Track if the lowercase letters ('r', 'b', 'g') (keys) have been encountered with booleans.
+  - If an uppercase letter ('R', 'B', 'G') (door) is found before its corresponding boolean (key) is true, stop processing.
+  - If all keys are found print "YES". Otherwise, print "NO".
+
 Time Complexity: O(|s|) per test case
 Space Complexity: O(|s|)
 */

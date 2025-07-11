@@ -1,20 +1,21 @@
 /*
 Problem: Rectangles
 Source: Codeforces (https://codeforces.com/problemset/problem/844/B)
-Constraints:
-    - 1 <= n, m <= 50
+
 Approach:
-    - Consider each row and each column separately.
-    - For each row/column, count the subsets of 0s and 1s using bitwise shifts.
-    - Compute the total number of valid subsets and subtract single-element sets counted twice.
-Time Complexity: O(n * m)
-Space Complexity: O(n * m)
+  - Consider each row and each column separately.
+  - For each row/column, count the subsets of 0s and 1s using bitwise shifts.
+  - Compute the total number of valid subsets and subtract single-element sets counted twice.
+
 Error Encountered:
     - The initial implementation used pow(2, count_0) to calculate subsets.
     - However, pow returns an int, which overflows for large values (e.g., count_0 can reach 50, exceeding the
     int limit of 2^{32} - 1).
 Solution:
     - Use bitwise shifting: 1LL << count_0, which efficiently computes powers of two without overflow.
+
+Time Complexity: O(n * m)
+Space Complexity: O(n * m)
 */
 
 #include <bits/stdc++.h>
