@@ -3,7 +3,6 @@
  * The complexity of the algorithm is O(m log m) where m is the number of elements in the array.
  * The space complexity is O(n) for storing the prefix sums.
  */
-
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
