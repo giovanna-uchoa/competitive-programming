@@ -1,41 +1,51 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-typedef long long ll;
-typedef pair<ll, int> plli;
-const ll INFTY = 100000000000000000;
+#define MAXN 100005
+
+int N, M;
+int team[MAXN];
+vector<int> friendships[MAXN]; // Lista de adjacência
+
+// Cada nó é visitado por no máximo 2 times
+// 1 e 2, se o time for diferente, o grafo não é bipartido
+// Se o time for 0, o nó não foi visitado
+void dfs(int n, int current_team) {
+    if (team[n] > 0 && team[n] != current_team) {
+        printf("IMPOSSIBLE\n");
+        exit(0);
+    } else if (team[n] > 0) {
+        return;
+    }
+
+    team[n] = current_team;
+    int next_team = current_team == 1 ? 2 : 1;
+
+    for (int adj : friendships[n]) {
+        dfs(adj, next_team);
+    }
+}
 
 int main() {
-	int n, m;
-	cin >> n >> m;
+    cin >> N >> M;
 
-	vector<vector<plli>> graph(n+1);
-	vector<ll> dist(n+1, INFTY);
+    int a, b;
+    for (int i = 0; i < M; i++) {
+        cin >> a >> b;
+        friendships[a].push_back(b);
+        friendships[b].push_back(a);
+    }
+    
+    for (int i = 1; i <= N; i++) {
+        if (team[i] == 0) {
+            dfs(i, 1);
+        }
+    }
 
-	for (int i = 0; i < m; i++) {
-		int u, v, w;
-		cin >> u >> v >> w;
-		graph[u].emplace_back(v, w);
-	}
-
-	priority_queue<plli, vector<plli>, greater<plli>> q;
-	dist[1] = 0;
-
-	q.emplace(dist[1], 1);
-	while (!q.empty()) {
-		auto [d, u] = q.top();
-		q.pop();
-		
-		if (dist[u] < d) continue;
-		for (auto [v, w] : graph[u]) {
-			if (v == u) continue; // self-loop
-			if (dist[v] <= d + w) continue;
-			dist[v] = d + w;
-			q.emplace(dist[v], v);
-		}
-	}
-
-    for (int c = 1; c <= n; c++)
-        cout << dist[c] << " ";
+    for (int i = 1; i <= N; i++) {
+        cout << team[i] << " ";
+    }
     cout << endl;
+
+    return 0;
 }

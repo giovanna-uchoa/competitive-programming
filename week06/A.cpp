@@ -1,40 +1,36 @@
-/**
-Problem: A - Hotels Along the Croatian Coast
-Source: Vjudge (https://vjudge.net/contest/711092#problem/A)
+/*
+Problem: A - Frog 2
+Source: Vjudge (https://vjudge.net/contest/708019#problem/A)
 
-Approach: Sliding Window (Two Pointers)
-    - Store the hotel values in a vector.
-    - Use a sliding window technique with two pointers (`i` and `j`) to represent the current segment of consecutive hotels.
-    - Expand the window by moving the right pointer (`j`) and adding the value of the current hotel to the sum.
-    - If the sum exceeds the limit `M`, shrink the window by moving the left pointer (`i`) and subtracting the value of the hotel at `i` from the sum.
-    - Track the maximum sum of any valid segment (sum ≤ M) during this process.
+Approach: Use dynamic programming to find the minimum cost to reach the last stone.
+  - Maintain a dp array where dp[i] represents the minimum cost to reach stone i.
+  - For each stone, calculate the cost to jump from the previous stone or the one before that.
+  - Update the dp array with the minimum costs found.
 
-Time Complexity: O(N) - Each pointer traverses the array at most once.
-Space Complexity: O(N) - To store the hotel values.
+Error Encountered: Maximum definition was not set correctly, leading to incorrect results. 
+
+Time Complexity: O(N * K)
+Space Complexity: O(N)
 */
 
 #include <bits/stdc++.h>
-typedef long long ll;
 using namespace std;
 
 int main() {
-    int N, M;
-    scanf("%d %d", &N, &M);
+    int N, K;
+    scanf("%d %d", &N, &K);
 
-    vector<int> hotels(N);
-    for (int i = 0; i < N; i++) 
-        scanf("%d", &hotels[i]);
+    vector<int> h(N);
+    vector<int> dp(N, INT_MAX);
+    for (int i = 0; i < N; i++)
+        scanf("%d", &h[i]);
 
-    int i = 0, j = 0;
-    ll sum = 0, max_sum = 0;
-    while (j < N) {
-        sum += hotels[j++];
-        
-        while (sum > M && i <= j) 
-            sum -= hotels[i++];
-        
-        max_sum = max(sum, max_sum);
+    dp[0] = 0;
+    for (int i = 1; i < N; i++) {
+        for (int k = 1; k <= K && i-k >= 0; k++)
+            dp[i] = min(dp[i], dp[i-k] + abs(h[i] - h[i-k]));
     }
 
-    printf("%lld\n", max_sum);
+    printf("%d\n", dp[N-1]);
+    return 0;
 }

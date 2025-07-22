@@ -1,72 +1,63 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-typedef long long ll;
+const int LOG = 20;
 
-struct Edge {
-    int u, v;
-    ll weight;
-    bool operator<(const Edge& other) const {
-        return weight < other.weight;
+vector<int> depth;
+vector<vector<int>> up;
+vector<vector<int>> adj;
+
+void dfs(int src, int parent, int d) {
+    depth[src] = d;
+    up[src][0] = parent;
+
+    for (int i = 1; i < LOG; i++)
+        up[src][i] = up[ up[src][i-1] ][i-1];
+    
+    for (int u : adj[src]) {
+        if (u == parent) continue;
+        dfs(u, src, d+1);
     }
-};
+}
 
-struct DSU {
-    vector<int> parent, rank;
+int lca(int a, int b) {
+	if (depth[a] < depth[b]) swap(a,b);
+	int dt = depth[a] - depth[b];
 
-    DSU(int n) : parent(n), rank(n, 0) {
-        for (int i = 0; i < n; i++) parent[i] = i;
-    }
+	for (int i = LOG-1; i >= 0; i--)
+			if (dt & (1<<i)) a = up[a][i];
 
-    int find(int u) {
-        if (parent[u] != u)
-            parent[u] = find(parent[u]);
-        return parent[u];
-    }
+	if (a == b) return a;
 
-    bool unite(int u, int v) {
-        u = find(u);
-        v = find(v);
-        if (u == v) return false;
-        if (rank[u] < rank[v]) swap(u, v);
-        parent[v] = u;
-        if (rank[u] == rank[v]) rank[u]++;
-        return true;
-    }
-};
+	for (int i = LOG-1; i >= 0; i--) {
+		if (up[a][i] != up[b][i]) {
+			a = up[a][i];
+			b = up[b][i];
+		}
+  }
 
-ll kruskal(int n, vector<Edge>& edges) {
-    sort(edges.begin(), edges.end());
-    DSU dsu(n);
-    ll mst_weight = 0;
-    int edges_used = 0;
-
-    for (auto& e : edges) {
-        if (dsu.unite(e.u, e.v)) {
-            mst_weight += e.weight;
-            edges_used++;
-            if (edges_used == n - 1) break;
-        }
-    }
-
-    if (edges_used == n - 1) return mst_weight;
-    return -1;
+	return up[a][0];
 }
 
 int main() {
-    int N, M;
-    scanf("%d %d", &N, &M);
-
-    vector<Edge> edges(M);
-    for (int i = 0; i < M; i++) {
-        scanf("%d %d %lld", &edges[i].u, &edges[i].v, &edges[i].weight);
-        edges[i].u--;
-        edges[i].v--;
+    int N, Q;
+    cin >> N >> Q;
+    
+    depth = vector<int>(N+1, -1);
+    adj = vector<vector<int>>(N+1);
+    up = vector<vector<int>>(N+1, vector<int>(LOG));
+    
+    for (int i = 2; i <= N; i++) {
+        int e; cin >> e;
+        adj[e].push_back(i);
     }
 
-    ll result = kruskal(N, edges);
-    if (result == -1) printf("IMPOSSIBLE\n");
-    else printf("%lld\n", result);
+    dfs(1, 1, 0);
+
+    for (int q = 0; q < Q; q++) {
+        int a, b; cin >> a >> b;
+        cout << lca(a, b) << endl;
+    }
 
     return 0;
 }

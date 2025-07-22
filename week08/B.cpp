@@ -1,60 +1,44 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-int main() {
-    int n, m;
-    cin >> n  >> m;
+#define maxn 1005
+#define maxm 1005
 
-    vector<int> id(n+1, 0);
-    vector<int> color(n+1, -1);
-    vector<vector<int>> graph(n+1);
+int n, m;
+char grid[maxn][maxm];
+bool vis[maxn][maxm];
 
-    for (int i = 0; i < m; i++) {
-        int u, v; cin >> u >> v;
-        graph[u].push_back(v);
-        graph[v].push_back(u);
-    }
+vector<int> dx = {-1, 0, 1, 0};
+vector<int> dy = {0, 1, 0, -1};
 
+void dfs(int i, int j) {
+	vis[i][j] = true; 
+	for (int k = 0; k < 4; k++) {
+		int ni = i + dx[k], nj = j + dy[k];
+		if (ni < 1 or ni > n or nj < 1 or nj > m) continue;
+		if (grid[ni][nj] == '#' or vis[ni][nj]) continue;
+		dfs(ni, nj);
+	}
+}
 
-    queue<int> q;
-    
+int main() {   
+    cin >> n >> m;
     for (int i = 1; i <= n; i++) {
-        if (color[i] != -1) continue;
-
-        id[i] = -1;
-        color[i] = 0;
-        q.push(i);
-
-        while (!q.empty()) {
-            int u = q.front();
-            q.pop();            
-            for (int v : graph[u]) {
-                if (color[v] != -1) {
-                    if (color[v] != color[u]) continue;
-                    else {
-                        cout << "IMPOSSIBLE" << endl;
-                        return 0;
-                    }
-                }
-                
-                color[v] = (color[u] + 1) % 2;
-                id[v] = u;
-                q.push(v);
-            }
+		for (int j = 1; j <= m; j++) {
+			cin >> grid[i][j];
         }
-    }
-
-    for (int v = 1; v <= n; v++) {
-        if (color[v] != -1) continue;
-
-        cout << "IMPOSSIBLE" << endl;
-        return 0;
-    }
-
-    for (int v = 1; v <= n; v++) {
-        cout << color[v] + 1 << " ";
-    }
-    cout << endl;
-
-    return 0;
+	}
+	
+	int ans = 0;
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= m; j++) {
+			if (grid[i][j] == '.' && !vis[i][j]) {
+				ans++;
+				dfs(i, j);
+			}
+		}
+	}
+	
+	printf("%d\n", ans);
+	return 0;
 }

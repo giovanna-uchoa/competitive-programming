@@ -1,59 +1,58 @@
+/**
+Problem: E - Vasya and String
+Source: Vjudge (https://vjudge.net/contest/711092#problem/E)
+
+Approach: Sliding Window (Two Pointers)
+    - Use a sliding window technique with two pointers (`i` and `j`) to represent the current segment of the string.
+    - The goal is to find the maximum length of a substring where at most `K` characters can be replaced to make all characters in the substring the same.
+    - Perform the process twice:
+        1. First, consider replacing 'b' characters with 'a'.
+        2. Then, consider replacing 'a' characters with 'b'.
+    - For each case:
+        - Expand the window by moving the right pointer (`j`).
+        - If the character at `j` requires a replacement and replacements are available, decrement the replacement counter.
+        - If no replacements are available, shrink the window by moving the left pointer (`i`) until a replacement becomes available.
+        - Update the maximum length of the valid substring during each iteration.
+
+Time Complexity: O(N) - Each pointer traverses the string at most once.
+Space Complexity: O(N) - To store the input string.
+*/
+
 #include <bits/stdc++.h>
 using namespace std;
 
-#define INFTY 1000000000
-
-vector<vector<int>> adj;
-vector<int> value;
-
-int dfs(int u, int d, int min_accum) {
-    if (adj[u].empty()) {
-        return min_accum + max(((value[u] - min_accum) / d), 0);;
-    }
-
-    int max_ops = INFTY;
-    for (int v : adj[u]) {
-        max_ops = min(max_ops, dfs(v, d+1, min(min_accum, value[v])));
-    }
-
-    return max_ops;
-}
-
-int solve() {
-    int N;
-    cin >> N;
-    adj.resize(N+1);
-    value.assign(N+1, -1);
-
-    for (int i = 1; i <= N; i++) {
-        int x; cin >> x;
-        value[i] = x;
-    }
-    
-    for (int v = 2; v <= N; v++) {
-        int parent; cin >> parent;
-        adj[parent].push_back(v);
-    }
-
-    int max_ops = INFTY;
-    for (auto u : adj[1]) {
-        max_ops = min(max_ops, dfs(u, 1, value[u]));
-    }
-
-    for (int i = 0; i <= N; i++) {
-        adj[i].clear();
-    }
-
-    return value[1] + max_ops;
-}
-
 int main() {
-    int t;
-    cin >> t;
+    int N, K;
+    cin >> N >> K;
 
-    while (t--) {
-        cout << solve() << endl;
+    string s;
+    cin >> s;
+    
+    int replaces = K;
+    int max_len = 0;
+    // Iterate through the string
+    int i = 0, j = 0;
+    while (j < N) {
+        if (s[j] == 'b') {
+            if (replaces) replaces--;
+            else while (s[i++] == 'a');
+        }
+
+        if (i <= j) max_len = max(max_len, j - i + 1);
+        j++;
     }
 
-    return 0;
+    replaces = K;
+    i = 0, j = 0;
+    while (j < N) {
+        if (s[j] == 'a') {
+            if (replaces) replaces--;
+            else while (s[i++] == 'b');
+        }
+
+        if (i <= j) max_len = max(max_len, j - i + 1);
+        j++;
+    }
+
+    cout << max_len << "\n";
 }

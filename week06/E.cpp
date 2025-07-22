@@ -1,58 +1,58 @@
-/**
-Problem: E - Vasya and String
-Source: Vjudge (https://vjudge.net/contest/711092#problem/E)
+/*
+Problem: E - Test of Love
+Source: Vjudge (https://vjudge.net/contest/708019#problem/E)
 
-Approach: Sliding Window (Two Pointers)
-    - Use a sliding window technique with two pointers (`i` and `j`) to represent the current segment of the string.
-    - The goal is to find the maximum length of a substring where at most `K` characters can be replaced to make all characters in the substring the same.
-    - Perform the process twice:
-        1. First, consider replacing 'b' characters with 'a'.
-        2. Then, consider replacing 'a' characters with 'b'.
-    - For each case:
-        - Expand the window by moving the right pointer (`j`).
-        - If the character at `j` requires a replacement and replacements are available, decrement the replacement counter.
-        - If no replacements are available, shrink the window by moving the left pointer (`i`) until a replacement becomes available.
-        - Update the maximum length of the valid substring during each iteration.
+Approach: Use dynamic programming to find if can cross the river with given constraints.
+  - Maintain a dp array where dp[i] represents the maximum energy left after reaching stone i.
+  - For each stone, check if can jump from previous stones and update the dp array accordingly.
+  - If reach the last stone with non-negative energy, return "YES", otherwise "NO".
 
-Time Complexity: O(N) - Each pointer traverses the string at most once.
-Space Complexity: O(N) - To store the input string.
+Time Complexity: O(N*M)
+Space Complexity: O(N)
 */
 
 #include <bits/stdc++.h>
 using namespace std;
 
-int main() {
-    int N, K;
-    cin >> N >> K;
-
-    string s;
-    cin >> s;
+int solve() {
+    int K, N, M;
+    scanf("%d %d %d", &N, &M, &K);
     
-    int replaces = K;
-    int max_len = 0;
-    // Iterate through the string
-    int i = 0, j = 0;
-    while (j < N) {
-        if (s[j] == 'b') {
-            if (replaces) replaces--;
-            else while (s[i++] == 'a');
-        }
+    char A[N+1];
+    scanf("%s", &A);
 
-        if (i <= j) max_len = max(max_len, j - i + 1);
-        j++;
+    vector<int> dp(N+2, -1);
+    dp[0] = K;
+    A[N] = 'B';
+    
+    for (int n = 0; n <= N; n++) {
+        if (A[n] == 'C') {
+            dp[n+1] = -1;
+            continue;
+        }
+        
+        if (n-1 == 0 || A[n-1] == 'W')
+            dp[n+1] = max(dp[n+1], dp[n]);
+        
+        for (int m = 1; m <= M && n-m + 1 >= 0; m++)
+            if (n-m == -1 || A[n-m] == 'L')
+                dp[n+1] = max(dp[n+1], dp[n-m+1]);
+
+        if (A[n] == 'W') dp[n+1] -= 1;
     }
 
-    replaces = K;
-    i = 0, j = 0;
-    while (j < N) {
-        if (s[j] == 'a') {
-            if (replaces) replaces--;
-            else while (s[i++] == 'b');
-        }
+    return dp[N+1] >= 0;
+}
 
-        if (i <= j) max_len = max(max_len, j - i + 1);
-        j++;
-    }
+int main() {
+    int t;
+    scanf("%d", &t);
 
-    cout << max_len << "\n";
+    while (t--)
+        if(solve())
+            printf("YES\n");
+        else
+            printf("NO\n");
+
+    return 0;
 }

@@ -1,49 +1,76 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-class Point {
-    double x = 0, y = 0;
-public:
-    Point(double x, double y) : x(x), y(y) {}
+using ll = long long;
 
-    double GetX() { return x; }
-    double GetY() { return y; }
+struct Segtree {
+    vector<ll> tree;
+    ll size = 1;
 
-    double GetDistance(const Point& other)  {
-        return sqrt(pow(x - other.x, 2) + pow(y - other.y, 2));
-    }
-};
+    Segtree(vector<ll>& arr) {
+        while (size < arr.size()) size *= 2;
+        tree.assign(size*2, 0);
 
-class Triangle {
-    Point a, b, c;
-public:  
-    Triangle(Point a, Point b, Point c) : a(a), b(b), c(c) {}
-
-    double GetPerimeter() {
-        return a.GetDistance(b) + b.GetDistance(c) + c.GetDistance(a);
+        for (int i = 0; i < arr.size(); i++) tree[size+i] = arr[i];
+        for (int i = size - 1; i > 0; i--) tree[i] = merge(tree[i*2], tree[i*2 + 1]);
     }
 
-    double GetArea() {
-        double s = GetPerimeter() / 2;
-        return sqrt(s * (s - a.GetDistance(b)) * (s - b.GetDistance(c)) * (s - c.GetDistance(a)));
+    ll merge(ll a, ll b) {
+        return a + b;
+    }
+
+    void update(int idx, int val) {
+        idx += size;
+        tree[idx] = val;
+        // Recalculate the tree upwards
+        while (idx > 1) {
+            idx /= 2;
+            tree[idx] = merge(tree[idx*2], tree[idx*2 + 1]);
+        }
+    }
+
+    ll query(int left, int right) {
+        left += size;
+        right += size;
+
+        ll out = 0; // Initial value for sum
+        while (left < right) {
+            if (left % 2 == 1) out = merge(out, tree[left++]);
+            if (right % 2 == 1) out = merge(out, tree[--right]);
+            left /= 2;
+            right /= 2;
+        }
+        return out;
     }
 };
 
 signed main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    cout << setprecision(4) << fixed;
 
-    double x1, y1, x2, y2, x3, y3;
-    cin >> x1 >> y1 >> x2 >> y2 >> x3 >> y3;
+    int n, q;
+    cin >> n >> q;
+    vector<ll> arr(n);
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
 
-    Point a(x1, y1);
-    Point b(x2, y2);
-    Point c(x3, y3);
-    Triangle triangle(a, b, c);
+    Segtree segtree(arr);
+    while (q--) {
+        int op, a, b;
+        cin >> op >> a >> b;
 
-    cout << triangle.GetPerimeter() << " ";
-    cout << triangle.GetArea() << endl;
+        switch (op) {
+        case 1:
+            segtree.update(--a, b); // 0-index
+            break;
+        case 2:
+            --a; --b; // 0-index
+            cout << segtree.query(a, b+1) << "\n";
+            break;
+        }
+
+    }
 
     return 0;
 }

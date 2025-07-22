@@ -1,44 +1,48 @@
+/*
+Problem: B - Hacking the random number generator
+Source: Vjudge (https://vjudge.net/contest/711092#problem/B)
+
+Approach: Two Pointers with Frequency Map
+    - Use a map to store the frequency of each unique number in the input.
+    - The map ensures the numbers are stored in sorted order.
+    - Use two pointers to traverse the map and find pairs of numbers with a difference equal to K.
+    - For each valid pair, calculate the number of combinations based on their frequencies.
+
+Time Complexity: O(N log N) - due to map operations (insertion and traversal).
+Space Complexity: O(N) - for storing the frequency map.
+*/
+
 #include <bits/stdc++.h>
 using namespace std;
 
-#define maxn 1005
-#define maxm 1005
+int main() {
+    int N, K;
+    scanf("%d %d", &N, &K);
 
-int n, m;
-char grid[maxn][maxm];
-bool vis[maxn][maxm];
+    map<int, int> numbers;
+    for (int i = 0; i < N; i++) {
+        int n;
+        scanf("%d", &n);
 
-vector<int> dx = {-1, 0, 1, 0};
-vector<int> dy = {0, 1, 0, -1};
+        auto it = numbers.find(n);
+        if (it == numbers.end()) numbers[n] = 1;
+        else it->second++; 
+    }
 
-void dfs(int i, int j) {
-	vis[i][j] = true; 
-	for (int k = 0; k < 4; k++) {
-		int ni = i + dx[k], nj = j + dy[k];
-		if (ni < 1 or ni > n or nj < 1 or nj > m) continue;
-		if (grid[ni][nj] == '#' or vis[ni][nj]) continue;
-		dfs(ni, nj);
-	}
-}
+    int count = 0; 
+    auto i = numbers.begin();
+    auto j = numbers.begin()++;
+    while (j != numbers.end()) {
+        int diff = j->first - i->first;
+        
+        if (diff == K) {
+            count += i->second * j->second;
+            i++; j++;
+        } 
+        else if (diff > K) i++;
+        else j++;
+        
+    }
 
-int main() {   
-    cin >> n >> m;
-    for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= m; j++) {
-			cin >> grid[i][j];
-        }
-	}
-	
-	int ans = 0;
-	for (int i = 1; i <= n; i++) {
-		for (int j = 1; j <= m; j++) {
-			if (grid[i][j] == '.' && !vis[i][j]) {
-				ans++;
-				dfs(i, j);
-			}
-		}
-	}
-	
-	printf("%d\n", ans);
-	return 0;
+    printf("%d\n", count);
 }

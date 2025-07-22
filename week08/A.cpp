@@ -1,55 +1,48 @@
 #include <bits/stdc++.h>
 using namespace std;
 
+#define MAXN 105
+
+bool visited[MAXN];
+vector<int> adj[MAXN];
+
+void dfs(int node) {
+    visited[node] = true;
+    for (int neighbor : adj[node])
+        if (!visited[neighbor]) 
+            dfs(neighbor);
+}
+
 int main() {
-    int n, m;
-    cin >> n  >> m;
+    int N, M;
+    cin >> N >> M;
 
-    vector<int> id(n+1, 0);
-    vector<int> depth(n+1, -1);
-    vector<vector<int>> graph(n+1);
-
-    for (int i = 0; i < m; i++) {
-        int u, v; cin >> u >> v;
-        graph[u].push_back(v);
-        graph[v].push_back(u);
+    int x, y;
+    for (int i = 0; i < M; i++) {
+        cin >> x >> y;
+        adj[x].push_back(y);
+        adj[y].push_back(x);
+    }
+ 
+    // se o número de arestas for diferente do número de nós, 
+    // M < N, não pode ser um grafo conexo
+    // M > N, tem mais que um ciclo simples
+    if (N != M) {
+        cout << "NO" << endl;
+        return 0;
     }
 
+    // precisa ser conexo, ou seja, todos os nós devem ser visitados 
+    // a partir de um nó qualquer
+    dfs(1);
 
-    queue<int> q;
-    id[1] = -1;
-    depth[1] = 0;
-
-    q.push(1);
-    while (!q.empty()) {
-        int u = q.front();
-        q.pop();
-        
-        for (int v : graph[u]) {
-            if (depth[v] != -1) continue;
-            depth[v] = depth[u]+1;
-            id[v] = u;
-            q.push(v);
+    for (int i = 1; i <= N; i++) {
+        if (!visited[i]) {
+            cout << "NO" << endl;
+            return 0;
         }
     }
 
-    if (depth[n] == -1)
-        cout << "IMPOSSIBLE" << endl;
-    else {
-        
-        vector<int> path = {n};
-        
-        int v = n;
-        while (id[v] != -1) {    
-            path.push_back(id[v]);
-            v = id[v];
-        }
-
-        cout << depth[n] + 1 << endl;
-        for (int i = depth[n]; i > 0; i--)
-            cout << path[i] << " ";
-        cout << path[0] << endl;
-    }
-
+    cout << "FHTAGN!" << endl;
     return 0;
 }

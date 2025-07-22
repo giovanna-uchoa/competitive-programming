@@ -1,81 +1,69 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-typedef pair<int, int> pii;
-typedef tuple<int, int, int> tiii;
+#define maxn 105
+#define maxm 105
+
+int n, m;
+int grid[maxn][maxm];
+int max_gcd = -1;
+
+vector<int> dx = {1, 0};
+vector<int> dy = {0, 1};
+
+// Memo[x][y][g]: já visitei a posição (x,y) com GCD atual igual a g
+unordered_map<int, bool> memo[maxn][maxm];
+
+int calculate_gcd(int a, int b) {
+    if (a > b) swap(a, b);
+    if (b % a == 0) return a;
+
+    return gcd(b % a, a);
+}
+
+void dfs(int x, int y, int prev_gcd) {
+    if (memo[x][y].count(prev_gcd)) return;
+    memo[x][y][prev_gcd] = true;
+
+	if (x == n - 1 && y == m - 1) {
+        int current_gcd = calculate_gcd(prev_gcd, grid[x][y]);
+        max_gcd = max(max_gcd, current_gcd);
+        return;
+    }
+
+    for (int k = 0; k < 2; k++) {
+		int nx = x + dx[k], ny = y + dy[k];
+        if (nx < 0 or nx >= n or ny < 0 or ny >= m) continue;
+
+        int current_gcd = calculate_gcd(prev_gcd, grid[nx][ny]);
+        dfs(nx, ny, current_gcd);
+	}
+}
 
 int solve() {
-    int n, m;
     cin >> n >> m;
-
-    vector<int> slowness(n+1);
-    vector<vector<pii>> graph(n+1); // Adjacency list (vertex, weight)
-
-    for (int i = 0; i < m; i++) {
-        int u, v, w;
-        cin >> u >> v >> w;
-        graph[u].emplace_back(v, w);
-        graph[v].emplace_back(u, w);
-    }
-
-    for (int i = 1; i <= n; i++) cin >> slowness[i];
-
-
-    // Dijkstra's algorithm
-    // h[i] = minimum distance to reach vertex N from i    
-    priority_queue<pii, vector<pii>, greater<pii>> qh;
-    vector<int> h(n+1, INT_MAX);
-    h[n] = 0;
-
-    qh.emplace(h[n], n);
-    while (!qh.empty()) {
-        auto [d, u] = qh.top();
-        qh.pop();
-
-        for (auto [v, w] : graph[u]) {
-            if (h[v] <= d + w) continue;
-            h[v] = d + w;
-            qh.emplace(h[v], v);
-        }
-    }
-
-
-    // We'll use A* to find the minimum distance from 1 to N
-    // f(i) = h[i]*min_bike + d[i]
-    vector<int> d(n+1, INT_MAX);
-    vector<int> f(n+1, INT_MAX);
-
-    priority_queue<tiii, vector<tiii>, greater<tiii>> qf;
-    d[1] = 0;
-    f[1] = h[1] * slowness[1];
-
-    qf.emplace(f[1], slowness[1], 1); // (f(i), min_bike, vertex)
-    while (!qf.empty()) {
-        auto [fi, bike_slowness, u] = qf.top();
-        qf.pop();
-
-        if (f[u] < fi) continue;
-        for (auto [v, w] : graph[u]) {
-            int cost = w * bike_slowness;
-            int new_d = d[u] + cost;
-            int min_slowness = min(bike_slowness, slowness[v]);
-            int new_f = new_d + h[v] * min_slowness;
-
-            if (f[v] <= new_f) continue;
-            d[v] = new_d;
-            f[v] = new_f;
-            qf.emplace(f[v], min_slowness, v);
-        }
-    }
+    for (int i = 0; i < n; i++)
+		for (int j = 0; j < m; j++)
+			cin >> grid[i][j];
+	
+    max_gcd = -1;
     
-    cout << d[n] << endl;
-    return 0;
+    for (int i = 0; i < n; i++)
+        for (int j = 0; j < m; j++)
+            memo[i][j].clear();
+
+    dfs(0, 0, grid[0][0]);
+
+    return max_gcd;
 }
 
 int main() {
     int t;
     cin >> t;
 
-    while (t--)
-        solve();
+    while (t--) {
+        cout << solve() << endl;
+    }
+
+    return 0;
 }

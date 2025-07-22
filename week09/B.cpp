@@ -1,63 +1,60 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int LOG = 20;
-
-vector<int> depth;
-vector<vector<int>> up;
-vector<vector<int>> adj;
-
-void dfs(int src, int parent, int d) {
-    depth[src] = d;
-    up[src][0] = parent;
-
-    for (int i = 1; i < LOG; i++)
-        up[src][i] = up[ up[src][i-1] ][i-1];
-    
-    for (int u : adj[src]) {
-        if (u == parent) continue;
-        dfs(u, src, d+1);
-    }
-}
-
-int lca(int a, int b) {
-	if (depth[a] < depth[b]) swap(a,b);
-	int dt = depth[a] - depth[b];
-
-	for (int i = LOG-1; i >= 0; i--)
-			if (dt & (1<<i)) a = up[a][i];
-
-	if (a == b) return a;
-
-	for (int i = LOG-1; i >= 0; i--) {
-		if (up[a][i] != up[b][i]) {
-			a = up[a][i];
-			b = up[b][i];
-		}
-  }
-
-	return up[a][0];
-}
-
 int main() {
-    int N, Q;
-    cin >> N >> Q;
-    
-    depth = vector<int>(N+1, -1);
-    adj = vector<vector<int>>(N+1);
-    up = vector<vector<int>>(N+1, vector<int>(LOG));
-    
-    for (int i = 2; i <= N; i++) {
-        int e; cin >> e;
-        adj[e].push_back(i);
+    int n, m;
+    cin >> n  >> m;
+
+    vector<int> id(n+1, 0);
+    vector<int> color(n+1, -1);
+    vector<vector<int>> graph(n+1);
+
+    for (int i = 0; i < m; i++) {
+        int u, v; cin >> u >> v;
+        graph[u].push_back(v);
+        graph[v].push_back(u);
     }
 
-    dfs(1, 1, 0);
 
-    for (int q = 0; q < Q; q++) {
-        int a, b; cin >> a >> b;
-        cout << lca(a, b) << endl;
+    queue<int> q;
+    
+    for (int i = 1; i <= n; i++) {
+        if (color[i] != -1) continue;
+
+        id[i] = -1;
+        color[i] = 0;
+        q.push(i);
+
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();            
+            for (int v : graph[u]) {
+                if (color[v] != -1) {
+                    if (color[v] != color[u]) continue;
+                    else {
+                        cout << "IMPOSSIBLE" << endl;
+                        return 0;
+                    }
+                }
+                
+                color[v] = (color[u] + 1) % 2;
+                id[v] = u;
+                q.push(v);
+            }
+        }
     }
+
+    for (int v = 1; v <= n; v++) {
+        if (color[v] != -1) continue;
+
+        cout << "IMPOSSIBLE" << endl;
+        return 0;
+    }
+
+    for (int v = 1; v <= n; v++) {
+        cout << color[v] + 1 << " ";
+    }
+    cout << endl;
 
     return 0;
 }

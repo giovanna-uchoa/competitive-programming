@@ -1,74 +1,71 @@
 #include <bits/stdc++.h>
 using namespace std;
+using ll = long long;
 
-struct Segtree {
-    vector<int> tree;
-    int size = 1;
+const int MOD = 998244353;
+const int MAXN = 3e5 + 5;
 
-    Segtree(vector<int>& arr) {
-        while (size < arr.size()) size *= 2;
-        tree.assign(size*2, 0);
+ll fact[MAXN], invFact[MAXN];
 
-        for (int i = 0; i < arr.size(); i++) tree[size+i] = arr[i];
-        for (int i = size - 1; i > 0; i--) tree[i] = merge(tree[i*2], tree[i*2 + 1]);
+ll modpow(ll a, ll b) {
+    ll res = 1;
+    while (b) {
+        if (b & 1) res = res * a % MOD;
+        a = a * a % MOD;
+        b >>= 1;
     }
+    return res;
+}
 
-    int merge(int a, int b) {
-        return min(a, b);
-    }
+void precompute() {
+    fact[0] = 1;
+    for (int i = 1; i < MAXN; i++)
+        fact[i] = fact[i - 1] * i % MOD;
 
-    void update(int idx, int val) {
-        idx += size;
-        tree[idx] = val;
-        // Recalculate the tree upwards
-        while (idx > 1) {
-            idx /= 2;
-            tree[idx] = merge(tree[idx*2], tree[idx*2 + 1]);
-        }
-    }
+    invFact[MAXN - 1] = modpow(fact[MAXN - 1], MOD - 2);
+    for (int i = MAXN - 2; i >= 0; i--)
+        invFact[i] = invFact[i + 1] * (i + 1) % MOD;
+}
 
-    int query(int left, int right) {
-        left += size;
-        right += size;
+ll C(int n, int k) {
+    if (k < 0 || k > n) return 0;
+    return fact[n] * invFact[k] % MOD * invFact[n - k] % MOD;
+}
 
-        int out = tree[left]; // Initial value for min
-        while (left < right) {
-            if (left % 2 == 1) out = merge(out, tree[left++]);
-            if (right % 2 == 1) out = merge(out, tree[--right]);
-            left /= 2;
-            right /= 2;
-        }
-        return out;
-    }
-};
+void solve() {
+    int n, k;
+    cin >> n >> k;
 
-signed main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-
-    int n, q;
-    cin >> n >> q;
-    vector<int> arr(n);
+    vector<pair<int, int>> events;
     for (int i = 0; i < n; i++) {
-        cin >> arr[i];
+        int l, r; cin >> l >> r;
+        events.emplace_back(l, +1);     // Lamp turns on
+        events.emplace_back(r + 1, -1); // Lamp turns off after r
     }
 
-    Segtree segtree(arr);
-    while (q--) {
-        int op, a, b;
-        cin >> op >> a >> b;
+    sort(events.begin(), events.end());
 
-        switch (op) {
-        case 1:
-            segtree.update(--a, b); // 0-index
-            break;
-        case 2:
-            --a; --b; // 0-index
-            cout << segtree.query(a, b+1) << "\n";
-            break;
+    precompute();
+
+    int curr = 0;
+    ll ans = 0;
+
+    for (auto [t, type] : events) {
+        if (type == +1) {
+            if (curr >= k - 1) {
+                ans += C(curr, k-1); // This new lamp makes groups with (k-1) already on
+                ans %= MOD;
+            }
+            curr++;
+        } else {
+            curr--;
         }
-
     }
 
-    return 0;
+    cout << ans << '\n';
+}
+
+int main() {
+    ios::sync_with_stdio(false); cin.tie(0);
+    solve();
 }

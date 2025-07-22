@@ -1,56 +1,46 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const double EPS = 1e-9;
 
-signed main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+using ll = long long;
 
-    int R, cx, cy; // Radius and Center of the circle
-    int x1, y1, x2, y2; // Coordinates of the line segment endpoints
-    cin >> R >> cx >> cy >> x1 >> y1 >> x2 >> y2;
- 
-    // Direção da reta
-    double dx = x2 - x1;
-    double dy = y2 - y1;
+struct Segtree {
+    vector<ll> tree;
+    ll size = 1;
 
-    // Parâmetros da equação quadrática At² + Bt + C = 0
-    double A = dx*dx + dy*dy;
-    double B = 2 * (dx*(x1 - cx) + dy*(y1 - cy));
-    double C = (x1 - cx)*(x1 - cx) + (y1 - cy)*(y1 - cy) - R*R;
+    Segtree(vector<ll>& arr) {
+        while (size < arr.size()) size *= 2;
+        tree.assign(size*2, 0);
 
-    double D = B*B - 4*A*C; // Discriminante
-    
-    if (D < -EPS) {
-        cout << -1 << endl; // Não intersecta
-    } else if (fabs(D) < EPS) {
-        cout << fixed << setprecision(5) << 0.0 << endl; // Toca o círculo
-    } else {
-        // Duas interseções
-        double sqrtD = sqrt(D);
-        double t1 = (-B - sqrtD) / (2*A);
-        double t2 = (-B + sqrtD) / (2*A);
+        for (int i = 0; i < arr.size(); i++) tree[size+i] = arr[i];
+        for (int i = size - 1; i > 0; i--) tree[i] = merge(tree[i*2], tree[i*2 + 1]);
+    }
 
-        // Clampa os valores de t para limitar ao segmento entre os pontos
-        double t_min = max(0.0, min(t1, t2));
-        double t_max = min(1.0, max(t1, t2));
+    ll merge(ll a, ll b) {
+        return max(a, b);
+    }
 
-        if (t_min > t_max) {
-            // O segmento entre os pontos não intercepta a parte dentro do círculo
-            cout << -1 << endl;
-        } else {
-            // Calcula os pontos de interseção reais no segmento
-            double x_start = x1 + dx * t_min;
-            double y_start = y1 + dy * t_min;
-            double x_end = x1 + dx * t_max;
-            double y_end = y1 + dy * t_max;
-
-            // Distância entre os pontos de interseção
-            double len = sqrt((x_end - x_start)*(x_end - x_start) + (y_end - y_start)*(y_end - y_start));
-            cout << fixed << setprecision(5) << len << endl;
+    void update(int idx, int val) {
+        idx += size;
+        tree[idx] = val;
+        // Recalculate the tree upwards
+        while (idx > 1) {
+            idx /= 2;
+            tree[idx] = merge(tree[idx*2], tree[idx*2 + 1]);
         }
     }
 
-    return 0;
-}
+    ll query(int left, int right) {
+        left += size;
+        right += size;
+
+        ll out = 0; // Initial value for sum
+        while (left < right) {
+            if (left % 2 == 1) out = merge(out, tree[left++]);
+            if (right % 2 == 1) out = merge(out, tree[--right]);
+            left /= 2;
+            right /= 2;
+        }
+        return out;
+    }
+};

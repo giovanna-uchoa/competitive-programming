@@ -1,88 +1,70 @@
-// Ideia: Each element initially points to artificial set node;
-// Each artificial set node is its own parent
-// https://codeforces.com/blog/entry/130521
-
 #include <bits/stdc++.h>
 using namespace std;
 
-struct DSU {
-    vector<int> parent, size;
-    vector<long long> sum;
+const int LOG = 20;
 
-    DSU(int n) : parent(2 * n), size(2 * n, 0), sum(2 * n, 0) {
-        for (int i = 0; i < n; ++i) {
-            parent[i] = n+i;
-            parent[n+i] = n+i;
-            size[n+i] = 1;
-            sum[n+i] = i+1; // 1-based
-        }
+vector<int> depth;
+vector<vector<int>> up;
+vector<vector<int>> adj;
+
+void dfs(int src, int parent, int d) {
+    depth[src] = d;
+    up[src][0] = parent;
+    for (int i = 1; i < LOG; i++)
+        up[src][i] = up[ up[src][i-1] ][i-1];
+    
+    for (int u : adj[src]) {
+        if (u == parent || depth[u] != -1) continue;
+        dfs(u, src, d+1);
+    }
+}
+
+int lca(int a, int b) {
+	if (depth[a] < depth[b]) swap(a,b);
+	int dt = depth[a] - depth[b];
+
+	for (int i = LOG-1; i >= 0; i--)
+		if (dt & (1<<i)) a = up[a][i];
+
+	if (a == b) return a;
+
+	for (int i = LOG-1; i >= 0; i--) {
+		if (up[a][i] != up[b][i]) {
+			a = up[a][i];
+			b = up[b][i];
+		}
     }
 
-    int find(int u) {
-        if (parent[u] != u) parent[u] = find(parent[u]);
-        return parent[u];
-    }
+	return up[a][0];
+}
 
-    void unite(int u, int v) {
-        u = find(u);
-        v = find(v);
-        if (u == v) return;
-
-        // Union by size
-        if (size[u] < size[v]) swap(u, v);
-        parent[v] = u;
-        size[u] += size[v];
-        sum[u] += sum[v];
-    }
-
-    void move(int u, int v) {
-        int ru = find(u);
-        int rv = find(v);
-        if (ru == rv) return;
-
-        // Update sizes and sums
-        size[ru]--;
-        sum[ru] -= (u + 1);
-
-        // Move u to set of v
-        parent[u] = rv;
-        size[rv]++;
-        sum[rv] += (u + 1);
-    }
-
-    int get_component_size(int u) {
-        return size[find(u)];
-    }
-
-    long long get_component_sum(int u) {
-        return sum[find(u)];
-    }
-};
+int distance_lca(int a, int b) {
+    int ancestor = lca(a, b);
+    return depth[a] + depth[b] - 2 * depth[ancestor];
+}
 
 int main() {
-    int N, M;
-    // Tests are input until EOF
-    while (scanf("%d %d", &N, &M) == 2) {
-        DSU dsu(N);
-
-        for (int i = 0; i < M; ++i) {
-            int op;
-            scanf("%d", &op);
-
-            if (op == 1) {
-                int p, q;
-                scanf("%d %d", &p, &q);
-                dsu.unite(--p, --q);
-            } else if (op == 2) {
-                int p, q;
-                scanf("%d %d", &p, &q);
-                dsu.move(--p, --q);
-            } else if (op == 3) {
-                int p;
-                scanf("%d", &p); --p;
-                printf("%d %lld\n", dsu.get_component_size(p), dsu.get_component_sum(p));
-            }
-        }
+    int N, M, K;
+    scanf("%d %d", &N, &M, &K);
+    
+    // Initialize depth, adjacency list, and up table
+    adj.resize(N+1);
+    depth.assign(N+1, -1);
+    up.assign(N+1, vector<int>(LOG));
+    
+    // Read edges
+    for (int i = 1; i < N; i++) {
+        int a, b; scanf("%d %d", &a, &b);
+        adj[a].push_back(b);
+        adj[b].push_back(a);
     }
+
+    dfs(1, 1, 0);
+
+    for (int q = 0; q < Q; q++) {
+        int a, b; scanf("%d %d", &a, &b);
+        printf("%d\n", distance_lca(a, b));
+    }
+
     return 0;
 }

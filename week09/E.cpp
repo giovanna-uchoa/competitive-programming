@@ -1,70 +1,68 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int LOG = 20;
+typedef pair<int, int> pii;
 
-vector<int> depth;
-vector<vector<int>> up;
-vector<vector<int>> adj;
+const int even_dx[] = {0, 0, 1, 1, -1, -1};
+const int even_dy[] = {-1, 1, -1, 0, -1, 0};
 
-void dfs(int src, int parent, int d) {
-    depth[src] = d;
-    up[src][0] = parent;
-    for (int i = 1; i < LOG; i++)
-        up[src][i] = up[ up[src][i-1] ][i-1];
-    
-    for (int u : adj[src]) {
-        if (u == parent || depth[u] != -1) continue;
-        dfs(u, src, d+1);
-    }
-}
-
-int lca(int a, int b) {
-	if (depth[a] < depth[b]) swap(a,b);
-	int dt = depth[a] - depth[b];
-
-	for (int i = LOG-1; i >= 0; i--)
-		if (dt & (1<<i)) a = up[a][i];
-
-	if (a == b) return a;
-
-	for (int i = LOG-1; i >= 0; i--) {
-		if (up[a][i] != up[b][i]) {
-			a = up[a][i];
-			b = up[b][i];
-		}
-    }
-
-	return up[a][0];
-}
-
-int distance_lca(int a, int b) {
-    int ancestor = lca(a, b);
-    return depth[a] + depth[b] - 2 * depth[ancestor];
-}
+const int odd_dx[] = {0, 0, 1, 1, -1, -1};
+const int odd_dy[] = {-1, 1, 0, 1, 0, 1};
 
 int main() {
-    int N, M, K;
-    scanf("%d %d", &N, &M, &K);
+    int n, m;
+    cin >> n >> m;
+
+    vector<string> grid(n);
+    vector<vector<int>> dist(n, vector<int>(m, 1000));
     
-    // Initialize depth, adjacency list, and up table
-    adj.resize(N+1);
-    depth.assign(N+1, -1);
-    up.assign(N+1, vector<int>(LOG));
-    
-    // Read edges
-    for (int i = 1; i < N; i++) {
-        int a, b; scanf("%d %d", &a, &b);
-        adj[a].push_back(b);
-        adj[b].push_back(a);
+    for (int i = 0; i < n; i++) {
+        cin >> grid[i];
     }
 
-    dfs(1, 1, 0);
+	priority_queue<pii, vector<pii>, greater<pii>> q;
 
-    for (int q = 0; q < Q; q++) {
-        int a, b; scanf("%d %d", &a, &b);
-        printf("%d\n", distance_lca(a, b));
+    // Inicializando distância da linha superior
+    for (int j = 0; j < m; j++) {
+        if (grid[0][j] == '.') dist[0][j] = 1;
+        else dist[0][j] = 0;
+        q.emplace(dist[0][j], j); // (distância, (linha*m + coluna))
     }
 
+    // Usa dijkstra para calcular a distância
+    while (!q.empty()) {
+        auto [d, u] = q.top();
+        int x = u / m, y = u % m;
+        q.pop();
+        
+
+        if (dist[x][y] < d) continue;
+        
+        const int *dx, *dy;
+        if (x % 2 == 0) {
+            dx = even_dx;
+            dy = even_dy;
+        } else {
+            dx = odd_dx;
+            dy = odd_dy;
+        }
+
+        for (int k = 0; k < 6; k++) {
+            int nx = x + dx[k], ny = y + dy[k];            
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m) continue;
+
+            int w = grid[nx][ny] == '.' ? 1 : 0;
+            if (dist[nx][ny] <= d + w) continue;
+            dist[nx][ny] = d + w;
+            q.emplace(dist[nx][ny], nx*m + ny);
+        }
+    }
+
+    // Encontra a menor distância na última linha
+    int ans = 1000;
+    for (int j = 0; j < m; j++) {
+        ans = min(ans, dist[n-1][j]);
+    }
+    cout << ans << endl;
     return 0;
 }

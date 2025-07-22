@@ -1,70 +1,49 @@
+/*
+Problem: F - Knapsack 2
+Source: Vjudge (https://vjudge.net/contest/708019#problem/F)
+
+Approach: Use dynamic programming to solve the 0/1 knapsack problem. We need to optimize the memory usage (W = 10^9).
+  - Maintain a dp array where dp[i] represents the minimum weight that can be obtained with value i (Vmax = 100 * 10^3).
+  - For each item, update the dp array from end to front to avoid overwriting values.
+  - The answer will be the maximum value that can be obtained with the given weight limit.
+
+Time Complexity: O(N*V_MAX)
+Space Complexity: O(V_MAX)
+*/
+
 #include <bits/stdc++.h>
-typedef long long ll;
 using namespace std;
 
-ll L, U;
-ll a[200005];
-ll tmp[200005]; // Global temporary buffer for reuse
+int knapsack(vector<int> weights, vector<int> values, int N, int W) {
+    int max_value = 0;
+    for (int i =  0; i < N; i++) max_value += values[i];
 
-ll count_and_merge(int s, int m, int e) {
-    ll count = 0;
+    const long long INF = 1e12;
+    vector<long long> dp(max_value+1, INF); // minum weight for each value
 
-    int lower_bound = e, upper_bound = e;
-    for (int k = s; k <= m; k++) {
-        while (lower_bound > m && a[k] + a[lower_bound] >= L) lower_bound--; // first that doesn't
-        while (upper_bound > m+1 && a[k] + a[upper_bound] > U) upper_bound--; // first that does
-
-        if (upper_bound < lower_bound) break;
-        if (a[k] + a[upper_bound] <= U && a[k] + a[lower_bound+1] >= L)
-            count += (upper_bound - lower_bound); // (lower_bound, upper_bound]
-    }
-
-    for (int k = s; k <= e; k++) tmp[k] = a[k];
-
-    int i = s, j = m + 1;
-    for (int k = s; k <= e; k++) { 
-        if (i > m) a[k] = tmp[j++];
-        else if (j > e) a[k] = tmp[i++];
-        else if (tmp[i] <= tmp[j]) a[k] = tmp[i++];
-        else a[k] = tmp[j++];
-    }
-
-    return count;
-}
-
-ll mergesort(int s, int e) {
-    if (s >= e) return 0;
-    int mid =  (s + e) / 2;
-
-    ll r = mergesort(s, mid);
-    ll l = mergesort(mid+1, e);
-
-    return r + l + count_and_merge(s, mid, e);
-}
-
-ll solve() {
-    int N;
-    ll X, Y;
-    scanf("%d %lld %lld", &N, &X, &Y);
-
-    ll sum = 0;
+    dp[0] = 0;
     for (int i = 0; i < N; i++) {
-        scanf("%lld", &a[i]);
-        sum += a[i];
-    }  
+        for (int v = max_value; v >= values[i]; v--) {
+            dp[v] = min(dp[v], dp[v - values[i]] + weights[i]);
+        }
+    }
 
-    // X <= sum - a[i] - a[j] <= Y
-    // sum - Y <= a[i] + a[j] <= sum - X
-    L = sum - Y;
-    U = sum - X; 
-
-    return mergesort(0, N-1);
+    int ans = 0;
+    for (int v = 0; v <= max_value; v++) if (dp[v] <= W) ans = v;
+    return ans;
 }
 
 int main() {
-    int t;
-    scanf("%d", &t);
+    int N, W;
+    scanf("%d %d", &N, &W);
 
-    while (t--)
-        printf("%lld\n", solve());
+    vector<int> w(N), v(N);
+
+    for (int i = 0; i < N; i++)
+        scanf("%d %d", &w[i], &v[i]);
+
+    int max_sum = knapsack(w, v, N, W);
+    printf("%d\n", max_sum);
+
+    return 0;
 }

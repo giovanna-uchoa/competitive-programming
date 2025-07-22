@@ -1,94 +1,44 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int LOG = 20;
-vector<vector<int>> up;
-vector<vector<int>> adj;
-vector<int> depth;
+typedef long long ll;
+typedef pair<ll, ll> pii;
+typedef tuple<ll, ll, ll> tiii;
 
-// in[u] and out[u] are used to determine the subtree of u
-// level[k] contains the nodes at depth k in the DFS tree
-vector<int> in, out;
-vector<vector<int>> level;
+const ll inf = 0x3f3f3f3f3f3f3f3f;
 
-// Timer for DFS to assign in and out times
-int timer = 0;
+int main() { 
+    int m, n, t;
+    cin >> n >> m >> t;
 
-// DFS to calculate in, out, depth and up tables (Euler Tour Technique)
-void dfs(int src, int parent, int d = 0) {
-    depth[src] = d;
-    if (level.size() <= d) level.resize(d + 1);
-    level[d].push_back(in[src] = timer++); // Store the in time for the node
+    vector<vector<tiii>> graph(n+1); // Adjacency list (vertex, x, y)
+    vector<ll> dist(n+1, inf); // Distances (time) from vertex 1
 
-    up[src][0] = parent;
-    for (int i = 1; i < LOG; i++) {
-        if (up[src][i - 1] == -1) break;
-        up[src][i] = up[ up[src][i-1 ]][i-1];
+    for (int i = 0; i < m; i++) {
+        ll a, b, x, y;
+        cin >> a >> b >> x >> y;
+        graph[a].emplace_back(b, x, y);
+        graph[b].emplace_back(a, x, y);
     }
 
-    for (int u : adj[src]) {
-        if (u == parent) continue;
-        dfs(u, src, d + 1);
+    priority_queue<pii, vector<pii>, greater<pii>> q;
+    dist[1] = t;
+
+    q.emplace(dist[1], 1);
+    while (!q.empty()) {
+	    auto [t, u] = q.top();
+        q.pop();
+	
+	    if (dist[u] < t) continue;
+	    for (auto [v, x, y] : graph[u]) {
+            ll incycle = t % (x + y);
+            ll cost = incycle < x ? 0 : y - incycle + x;
+            if (dist[v] <= t + cost) continue;
+		    dist[v] = t + cost;
+		    q.emplace(dist[v], v);
+        }
     }
 
-    out[src] = timer;
-}
-
-int binary_lifting(int u, int k) {
-    int v = u;
-    for (int i = LOG - 1; i >= 0; i--) {
-        if (k & (1 << i)) v = up[v][i];
-        if (v == -1) break;
-    }
-    return v;
-}
-
-int query(int v, int p) {
-    int ancestor = binary_lifting(v, p);
-    if (ancestor == -1) return 0;
-
-    int k = depth[ancestor] + p;
-    if (k < 0 || k >= level.size()) return 0;
-
-    auto& lvl = level[k];
-    auto lb = lower_bound(lvl.begin(), lvl.end(), in[ancestor]);
-    auto ub = upper_bound(lvl.begin(), lvl.end(), out[ancestor]-1);
-
-    return distance(lb, ub) - 1;  // Excludes v
-}
-
-int main() {
-    int N;
-    scanf("%d", &N);
-
-    in.resize(N + 1);
-    out.resize(N + 1);
-    adj.resize(N + 1);
-    depth.resize(N + 1, -1);
-    up.assign(N + 1, vector<int>(LOG, -1));
-    level.resize(N + 1);
-
-    for (int i = 1; i <= N; i++) {
-        int r; scanf("%d", &r);
-        if (r == 0) continue;
-
-        adj[r].push_back(i);
-        adj[i].push_back(r);
-    }
-
-    for (int i = 1; i <= N; i++)
-        if (depth[i] == -1) dfs(i, -1);
-
-    // Sort levels for binary search
-    for (auto& v : level)
-        sort(v.begin(), v.end());
-
-    int M; scanf("%d", &M);
-    for (int i = 0; i < M; i++) {
-        int v, p; scanf("%d %d", &v, &p);
-        printf("%d ", query(v, p));
-    }
-    printf("\n");
-
+    cout << dist[n] << endl;
     return 0;
 }

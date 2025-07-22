@@ -1,60 +1,73 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-class Point {
-    int x = 0, y = 0;
-public:
-    Point(int x, int y) : x(x), y(y) {}
+struct Segtree {
+    vector<int> tree;
+    int size = 1;
 
-    int GetX() const { return x; }
-    int GetY() const { return y; }
-};
+    Segtree(vector<int>& arr) {
+        while (size < arr.size()) size *= 2;
+        tree.assign(size*2, 0);
 
-class Line {
-    Point p1, p2;
-public:
-    Line(const Point& a, const Point& b) : p1(a), p2(b) {}
+        for (int i = 0; i < arr.size(); i++) tree[size+i] = arr[i];
+        for (int i = size - 1; i > 0; i--) tree[i] = merge(tree[i*2], tree[i*2 + 1]);
+    }
 
-    int relativePosition(const Point& p3) const {
-        // Dot product to determine the relative position of point p3
-        // vectors (p1 -> p2) = (x2 - x1, y2 - y1) and (p1 -> p3) = (x3 - x1, y3 - y1)
-        long long cross = 1LL * (p2.GetX() - p1.GetX()) * (p3.GetY() - p1.GetY()) -
-                          1LL * (p2.GetY() - p1.GetY()) * (p3.GetX() - p1.GetX());
+    int merge(int a, int b) {
+        return min(a, b);
+    }
 
-        if (cross > 0) return 1;     // LEFT
-        if (cross < 0) return -1;    // RIGHT
-        return 0;                    // TOUCH
+    void update(int idx, int val) {
+        idx += size;
+        tree[idx] = val;
+        // Recalculate the tree upwards
+        while (idx > 1) {
+            idx /= 2;
+            tree[idx] = merge(tree[idx*2], tree[idx*2 + 1]);
+        }
+    }
+
+    int query(int left, int right) {
+        left += size;
+        right += size;
+
+        int out = tree[left]; // Initial value for min
+        while (left < right) {
+            if (left % 2 == 1) out = merge(out, tree[left++]);
+            if (right % 2 == 1) out = merge(out, tree[--right]);
+            left /= 2;
+            right /= 2;
+        }
+        return out;
     }
 };
 
-int main() {
+signed main() {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    int t;
-    cin >> t;
+    int n, q;
+    cin >> n >> q;
+    vector<int> arr(n);
+    for (int i = 0; i < n; i++) {
+        cin >> arr[i];
+    }
 
-    while (t--) {
-        int x1, y1, x2, y2, x3, y3;
-        cin >> x1 >> y1 >> x2 >> y2 >> x3 >> y3;
+    Segtree segtree(arr);
+    while (q--) {
+        int op, a, b;
+        cin >> op >> a >> b;
 
-        Point a(x1, y1);
-        Point b(x2, y2);
-        Point c(x3, y3);
-
-        Line line(a, b);
-
-        switch (line.relativePosition(c)) {
-            case 1:
-                cout << "LEFT\n";
-                break;
-            case -1:
-                cout << "RIGHT\n";
-                break;
-            case 0:
-                cout << "TOUCH\n";
-                break;
+        switch (op) {
+        case 1:
+            segtree.update(--a, b); // 0-index
+            break;
+        case 2:
+            --a; --b; // 0-index
+            cout << segtree.query(a, b+1) << "\n";
+            break;
         }
+
     }
 
     return 0;

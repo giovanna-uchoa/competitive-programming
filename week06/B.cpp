@@ -1,48 +1,41 @@
 /*
-Problem: B - Hacking the random number generator
-Source: Vjudge (https://vjudge.net/contest/711092#problem/B)
+Problem: B - Coin Combinations
+Source: Vjudge (https://vjudge.net/contest/708019#problem/B)
 
-Approach: Two Pointers with Frequency Map
-    - Use a map to store the frequency of each unique number in the input.
-    - The map ensures the numbers are stored in sorted order.
-    - Use two pointers to traverse the map and find pairs of numbers with a difference equal to K.
-    - For each valid pair, calculate the number of combinations based on their frequencies.
+Approach: Use dynamic programming to find the number of ways to make change for a given amount.
+  - Maintain a dp array where dp[i] represents the number of ways to make change for amount i.
+  - For each coin, update the dp array for all amounts that can be formed using that coin.
 
-Time Complexity: O(N log N) - due to map operations (insertion and traversal).
-Space Complexity: O(N) - for storing the frequency map.
+Error Encountered: Modulo % calc was not set correctly, being calculated before addition.
+
+Time Complexity: O(X * N)
+Space Complexity: O(X)
 */
 
 #include <bits/stdc++.h>
 using namespace std;
 
+#define MOD 1000000007
+
 int main() {
-    int N, K;
-    scanf("%d %d", &N, &K);
-
-    map<int, int> numbers;
+    int N, X;
+    scanf("%d %d", &N, &X);
+    
+    vector<int> coins(N);
     for (int i = 0; i < N; i++) {
-        int n;
-        scanf("%d", &n);
-
-        auto it = numbers.find(n);
-        if (it == numbers.end()) numbers[n] = 1;
-        else it->second++; 
+        scanf("%d", &coins[i]);
     }
 
-    int count = 0; 
-    auto i = numbers.begin();
-    auto j = numbers.begin()++;
-    while (j != numbers.end()) {
-        int diff = j->first - i->first;
-        
-        if (diff == K) {
-            count += i->second * j->second;
-            i++; j++;
-        } 
-        else if (diff > K) i++;
-        else j++;
-        
+    vector<long long> dp(X+1, 0);
+    dp[0] = 1;
+
+    for (int x = 1; x <= X; x++) {
+        for (int c : coins) {
+            if (x-c >= 0)
+                dp[x] = (dp[x] + dp[x-c]) % MOD;
+        }
     }
 
-    printf("%d\n", count);
+    printf("%d\n", dp[X]);
+    return 0;
 }

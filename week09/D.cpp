@@ -1,93 +1,93 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-const int LOG = 20;
+const int dx[] = {0, 0, -1, 1};
+const int dy[] = {-1, 1, 0, 0};
 
-vector<int> depth;
-vector<int> npath;
-vector<vector<int>> up;
-vector<vector<int>> adj;
+int main() {
+    int n, m;
+    cin >> n >> m;
 
-void dfs(int src, int parent, int d) {
-    depth[src] = d;
-    up[src][0] = parent;
+    vector<string> grid(n);
+    vector<vector<int>> monster_dist(n, vector<int>(m, INT_MAX));
+    vector<vector<int>> player_dist(n, vector<int>(m, INT_MAX));
+    vector<vector<pair<int, int>>> prev(n, vector<pair<int, int>>(m));
+    
+    pair<int, int> start;
+    queue<pair<int, int>> mq, pq;
 
-    for (int i = 1; i < LOG; i++)
-        up[src][i] = up[ up[src][i-1] ][i-1];
-
-    for (int u : adj[src]) {
-        if (u == parent) continue;
-        dfs(u, src, d + 1);
-    }
-}
-
-int get_lca(int a, int b) {
-    if (depth[a] < depth[b]) swap(a, b);
-    int dt = depth[a] - depth[b];
-
-    for (int i = LOG - 1; i >= 0; i--)
-        if (dt & (1 << i)) a = up[a][i];
-
-    if (a == b) return a;
-
-    for (int i = LOG-1; i >= 0; i--) {
-        if (up[a][i] != up[b][i]) {
-            a = up[a][i];
-            b = up[b][i];
+    // Lê o grid e inicializa as distâncias
+    for (int i = 0; i < n; i++) {
+        cin >> grid[i];
+        for (int j = 0; j < m; j++) {
+            if (grid[i][j] == 'M') {
+                mq.emplace(i, j);
+                monster_dist[i][j] = 0;
+            }
+            else if (grid[i][j] == 'A') {
+                start = {i, j};
+                pq.emplace(i, j);
+                player_dist[i][j] = 0;
+            }
         }
     }
 
-    return up[a][0];
-}
+    // BFS para os monstros
+    while (!mq.empty()) {
+        auto [x, y] = mq.front();
+        mq.pop();
 
-void paths_lca(int a, int b) {
-    int lca = get_lca(a, b);
-    npath[a] += 1;
-    npath[b] += 1;
- 
-    npath[lca] -= 1;
-    // If lca is not the root, we need to adjust the parent path count
-    if (up[lca][0] != lca) npath[up[lca][0]] -= 1;
-}
-
-void accumulate(int u, int p) {
-    for (int v : adj[u]) {
-        if (v == p) continue;
-        accumulate(v, u);
-        npath[u] += npath[v];
-    }
-}
-
-int main() {
-    int N, M;
-    scanf("%d %d", &N, &M);
-
-    adj.resize(N + 1);
-    depth.assign(N + 1, -1);
-    npath.assign(N + 1, 0);
-    up.assign(N + 1, vector<int>(LOG));
-
-    for (int i = 1; i < N; i++) {
-        int a, b; 
-        scanf("%d %d", &a, &b);
-        adj[a].push_back(b);
-        adj[b].push_back(a);
+        for (int k = 0; k < 4; k++) {
+            int nx = x + dx[k], ny = y + dy[k];
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m || grid[nx][ny] == '#') continue;
+            if (monster_dist[nx][ny] != INT_MAX) continue;
+            
+            monster_dist[nx][ny] = monster_dist[x][y] + 1;
+            mq.emplace(nx, ny);
+        }
     }
 
-    dfs(1, 1, 0);
+    // BFS para o jogador
+    while (!pq.empty()) {
+        auto [x, y] = pq.front();
+        pq.pop();
 
-    for (int m = 0; m < M; m++) {
-        int a, b;
-        scanf("%d %d", &a, &b);
-        paths_lca(a, b);
+        // Checa se alcançamos alguma borda
+        if (x == 0 || x == n-1 || y == 0 || y == m-1) {
+            vector<char> path;
+            pair<int, int> current = {x, y};
+            
+            while (current != start) {
+                auto [px, py] = prev[current.first][current.second];
+                if (current.first > px) path.push_back('D');
+                else if (current.first < px) path.push_back('U');
+                else if (current.second > py) path.push_back('R');
+                else path.push_back('L');
+                current = {px, py};
+            }
+
+            reverse(path.begin(), path.end());
+            cout << "YES\n" << path.size() << '\n';
+            for (char c : path) cout << c;
+            cout << '\n';
+            return 0;
+        }
+
+        for (int k = 0; k < 4; k++) {
+            int nx = x + dx[k], ny = y + dy[k];
+            if (nx < 0 || nx >= n || ny < 0 || ny >= m || grid[nx][ny] == '#') continue;
+            if (player_dist[nx][ny] != INT_MAX) continue;
+            
+            int next_dist = player_dist[x][y] + 1;
+            if (next_dist >= monster_dist[nx][ny]) continue;
+
+            player_dist[nx][ny] = next_dist;
+            prev[nx][ny] = {x, y};
+            pq.emplace(nx, ny);
+        }
     }
 
-    accumulate(1, 0);
-
-    for (int n = 1; n <= N; n++) {
-        printf("%d ", npath[n]);
-    }
-    printf("\n");
+    cout << "NO\n";
 
     return 0;
 }

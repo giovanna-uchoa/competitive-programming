@@ -1,77 +1,41 @@
 #include <bits/stdc++.h>
 using namespace std;
-
 using ll = long long;
 
-struct Segtree {
-    vector<ll> tree;
-    ll size = 1;
-
-    Segtree(vector<ll>& arr) {
-        while (size < arr.size()) size *= 2;
-        tree.assign(size*2, 0);
-
-        for (int i = 0; i < arr.size(); i++) tree[size+i] = arr[i];
-        for (int i = size - 1; i > 0; i--) tree[i] = merge(tree[i*2], tree[i*2 + 1]);
-    }
-
-    ll merge(ll a, ll b) {
-        return max(a, b);
-    }
-
-    // Update the value at index idx by subtracting val
-    void update(int idx, ll val) {
-        idx += size;
-        tree[idx] -= val;
-        // Recalculate the tree upwards
-        while (idx > 1) {
-            idx /= 2;
-            tree[idx] = merge(tree[idx*2], tree[idx*2 + 1]);
-        }
-    }
-
-    // Binary search for the first index with value >= min
-    int query(ll min) {
-        int node = 1; // Start from the root
-        while (node < size) { // While not at a leaf node
-            if (min > tree[node]) return -1; // No such index exists
-
-            node *= 2; // Move to the left child
-            if (tree[node] < min) node++; // Move to the right child if left child is not sufficient
-        }
-
-        // Now node is a leaf node, we need to find the original index
-        if (tree[node] < min) return -1; // If the leaf node value is still less than min, return -1
-        return node - size; // Convert to original index
-    }
+struct Interval {
+    int l, r, idx;
 };
 
-signed main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+void solve() {
+    int n, k;
+    cin >> n >> k;
 
-    int n, m;
-    cin >> n >> m;
-    vector<ll> h(n);
+    vector<Interval> intervals;
     for (int i = 0; i < n; i++) {
-        cin >> h[i];
+        int l, r; cin >> l >> r;
+        intervals.emplace_back(l, r, i);
     }
 
-    Segtree segtree(h);
-    
-    while (m--) {
-        int r;
-        cin >> r;
+    sort(intervals.begin(), intervals.end(), [](auto& a, auto& b) {
+        if (a.l != b.l) return a.l < b.l;
+        return a.r > b.r;
+    });
+   
+    int curr = 0;
+    ll ans = 0;
 
-        int hotel = segtree.query(r);
-        if (hotel == -1) {
-            cout << "0" << " "; // No hotel can accommodate this request
+    for (auto [t, type] : events) {
+        if (type == +1) {
+            curr++;
         } else {
-            cout << hotel + 1 << " "; // Convert to 1-based index
-            segtree.update(hotel, r); // Mark this hotel as used
+            curr--;
         }
     }
 
-    cout << "\n";
-    return 0;
+    cout << ans << '\n';
+}
+
+int main() {
+    ios::sync_with_stdio(false); cin.tie(0);
+    solve();
 }

@@ -1,62 +1,52 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-struct DSU {
-    vector<int> parent, rank, size;
-    int component_count;
-    int max_component_size;
+const int LOG = 20;
+vector<vector<int>> up;
+vector<vector<int>> adj;
 
-    DSU(int n) : parent(n+1), rank(n+1, 0), size(n+1, 1), component_count(n), max_component_size(1) {
-        for (int i = 1; i <= n; i++) parent[i] = i;
+void dfs(int src, int parent) {
+    up[src][0] = parent;
+    for (int i = 1; i < LOG; i++)
+        if (up[src][i-1] == -1)
+            break; // If parent doesn't exist, break the loop
+        else
+            up[src][i] = up[ up[src][i-1] ][i-1];
+    
+    for (int u : adj[src]) {
+        if (u == parent) continue;
+        dfs(u, src);
+    }
+}
+
+int binary_lifting(int u, int k) {
+    int v = u;
+	for (int i = LOG-1; i>= 0; i--) {
+		if (k & (1<<i)) v = up[v][i];
+        if (v == -1) break; // If we reach a node that doesn't exist       
     }
 
-    int find(int u) {
-        if (parent[u] != u)
-            parent[u] = find(parent[u]); // Path Compression
-        return parent[u];
-    }
-
-    bool unite(int u, int v) {
-        u = find(u);
-        v = find(v);
-        if (u == v) return false;
-
-        // Union by Rank
-        if (rank[u] < rank[v]) swap(u, v);
-        parent[v] = u;
-
-        size[u] += size[v];
-        max_component_size = max(max_component_size, size[u]);
-
-        if (rank[u] == rank[v]) rank[u]++;
-        component_count--;
-        return true;
-    }
-
-    int get_component_count() {
-        return component_count;
-    }
-
-    int get_component_size(int u) {
-        return size[find(u)];
-    }
-
-    int get_max_component_size() {
-        return max_component_size;
-    }
-};
+	return v;
+}
 
 int main() {
-    int N, M;
-    scanf("%d %d", &N, &M);
-    DSU dsu(N);
+    int N, Q;
+    scanf("%d %d", &N, &Q);
+    
+    adj.resize(N+1);
+    up.assign(N+1, vector<int>(LOG, -1));
+    
+    for (int i = 2; i <= N; i++) {
+        int e; scanf("%d", &e);
+        adj[e].push_back(i);
+        adj[i].push_back(e);
+    }
 
-    for (int i = 0; i < M; i++) {
-        int u, v;
-        scanf("%d %d", &u, &v);
-        dsu.unite(u, v);
+    dfs(1, -1);
 
-        printf("%d %d\n", dsu.get_component_count(), dsu.get_max_component_size());
+    for (int q = 0; q < Q; q++) {
+        int x, k; scanf("%d %d", &x, &k);
+        printf("%d\n", binary_lifting(x, k));
     }
 
     return 0;
