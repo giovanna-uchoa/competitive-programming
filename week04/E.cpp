@@ -1,3 +1,15 @@
+/*
+Problem: E - Exponentiation II
+Source: Vjudge (https://vjudge.net/contest/704739#problem/E)
+
+Approach:
+  - Use modular exponentiation to compute (a^(b^c)) % mod.
+  - Since b^c can be very large, compute it modulo (mod - 1) using Fermat's Little Theorem.
+
+Time Complexity: O(log(c))
+Space Complexity: O(1)
+*/
+
 #include <bits/stdc++.h>
 typedef long long ll;
 using namespace std;

@@ -1,4 +1,17 @@
-// Erro o % estava calculando primeiro que +
+/*
+Problem: B - Coin Combinations
+Source: Vjudge (https://vjudge.net/contest/708019#problem/B)
+
+Approach: Use dynamic programming to find the number of ways to make change for a given amount.
+  - Maintain a dp array where dp[i] represents the number of ways to make change for amount i.
+  - For each coin, update the dp array for all amounts that can be formed using that coin.
+
+Error Encountered: Modulo % calc was not set correctly, being calculated before addition.
+
+Time Complexity: O(X * N)
+Space Complexity: O(X)
+*/
+
 #include <bits/stdc++.h>
 using namespace std;
 

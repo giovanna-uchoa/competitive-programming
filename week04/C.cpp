@@ -1,9 +1,18 @@
-// no melhor dos casos: lcm(a, b) = max(a, b)
-// considere a < b, lcm(a, b) = b sse b % a == 0
-// ou seja, resposta ótima tem b mod a = 0
-// com isso, como n = a + b, (n - a) mod a = 0 => n mod a = 0
-// ou seja, resposta ótima tem a como divisor de n
-// além disso, preciso maximizar a para minimizar b (a < b)
+/*
+Problem: C - Minimum LCM
+Source: Vjudge (https://vjudge.net/contest/704739#problem/C)
+
+Approach:
+  - Find two numbers a and b such that a + b = n and lcm(a, b) is minimized.
+  - Best scenario is when lcm(a, b) = max(a, b). Consider a < b, then lcm(a, b) = b if b % a == 0.
+  - With this, we know that the optimal solution has a as a divisor of n 
+        n = a + b, (n - a) mod a = 0 => n mod a = 0.
+  - Maximize a to minimize b (a < b).
+
+Time Complexity: O(sqrt(n))
+Space Complexity: O(1)
+*/
+
 #include <bits/stdc++.h>
 typedef long long ll;
 using namespace std;

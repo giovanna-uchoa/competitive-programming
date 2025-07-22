@@ -1,3 +1,15 @@
+/*
+Problem: C - Removing Digits
+Source: Vjudge (https://vjudge.net/contest/708019#problem/C)
+
+Approach: Use dynamic programming to find the minimum number of steps to remove all digits from a number.
+  - Maintain a dp array where dp[i] represents the minimum number of steps to remove all digits from i.
+  - For each number, iterate over its digits and update the dp array accordingly.
+
+Time Complexity: O(N log N)
+Space Complexity: O(N)
+*/
+
 #include <bits/stdc++.h>
 using namespace std;
 

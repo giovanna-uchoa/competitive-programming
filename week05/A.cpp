@@ -1,4 +1,18 @@
-// Erro: Definição do Máximo
+/*
+Problem: A - Frog 2
+Source: Vjudge (https://vjudge.net/contest/708019#problem/A)
+
+Approach: Use dynamic programming to find the minimum cost to reach the last stone.
+  - Maintain a dp array where dp[i] represents the minimum cost to reach stone i.
+  - For each stone, calculate the cost to jump from the previous stone or the one before that.
+  - Update the dp array with the minimum costs found.
+
+Error Encountered: Maximum definition was not set correctly, leading to incorrect results. 
+
+Time Complexity: O(N * K)
+Space Complexity: O(N)
+*/
+
 #include <bits/stdc++.h>
 using namespace std;
 

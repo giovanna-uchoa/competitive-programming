@@ -1,3 +1,15 @@
+/*
+Problem: D - Grid 1
+Source: Vjudge (https://vjudge.net/contest/708019#problem/D)
+
+Approach: Use dynamic programming to find the number of ways to reach the bottom-right corner of a grid.
+  - Maintain a dp array where dp[i][j] represents the number of ways to reach cell (i, j).
+  - For each cell, update the dp array based on the cells above and to the left.
+
+Time Complexity: O(H*W)
+Space Complexity: O(H*W)
+*/
+
 #include <bits/stdc++.h>
 typedef long long ll;
 using namespace std;

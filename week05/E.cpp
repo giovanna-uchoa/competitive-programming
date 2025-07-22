@@ -1,3 +1,16 @@
+/*
+Problem: E - Test of Love
+Source: Vjudge (https://vjudge.net/contest/708019#problem/E)
+
+Approach: Use dynamic programming to find if can cross the river with given constraints.
+  - Maintain a dp array where dp[i] represents the maximum energy left after reaching stone i.
+  - For each stone, check if can jump from previous stones and update the dp array accordingly.
+  - If reach the last stone with non-negative energy, return "YES", otherwise "NO".
+
+Time Complexity: O(N*M)
+Space Complexity: O(N)
+*/
+
 #include <bits/stdc++.h>
 using namespace std;
 

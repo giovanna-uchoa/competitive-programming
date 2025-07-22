@@ -1,3 +1,17 @@
+/*
+Problem: A - kth divisor
+Source: Vjudge (https://vjudge.net/contest/704739#problem/A)
+
+Approach:
+  - Find all divisors of n. use two vectors to store divisors:
+    - `front` for divisors from 1 to sqrt(n)
+    - `back` for divisors from sqrt(n) to n
+  - Return the k-th smallest divisor if it exists.
+
+Time Complexity: O(sqrt(N))
+Space Complexity: O(sqrt(N))
+*/
+
 #include <bits/stdc++.h>
 using namespace std;
 typedef long long ll;
